@@ -1,0 +1,42 @@
+<script type='text/javascript'>
+</script>
+<div class="wrap">
+	<h2>Sliders: <a href="?page=kotslider&action=addform" class="add-new-h2">Add New</a></h2>
+	<div class="kotslider-frame">
+		<div class="kotslider-frame-body">
+		<table class="kotslider-list">
+				<tr>
+					<th width="15%">ID</th>
+					<th width="65%">Slider name</th>
+					<th width="20%">Actions</th>
+				</tr>
+			<?php foreach ($vars as $vi) { ?>
+				<tr>
+					<td><strong><?php echo '#'.$vi['id']; ?></strong></td>
+					<td><a href="?page=kotslider&action=editform&sliderid=<?php echo $vi['id']; ?>"><strong><?php echo $vi['title'];?></strong></a></td>
+					<td><a href="?page=kotslider&action=editform&sliderid=<?php echo $vi['id']; ?>" class="kotslider-button bbutton">Edit</a><a href="?page=kotslider&action=deleteslider&id=<?php echo $vi['id']; ?>" class="kotslider-button gbutton">Delete</td>
+				</tr>
+			<?php } ?>
+		</table>
+		</div>
+		<?php
+		/*
+		<div class="kotslider-frame-aside">
+			<div class="kotslider-setwin">
+			<form action="?">
+			<h3>Settings:<input name="save" type="submit" class="button button-primary button-large right" id="publish" accesskey="p" value="Save"></h3>
+			<label>Width:</label><input type="text" name="width" class="small-text right" value="950"/><br />
+			<label>Height:</label><input type="text" name="height" class="small-text right" value="650"/><br /><br />
+			<label>Style:</label>
+			<input type="radio" value="styledayfoto" name="sliderstyle" checked>dayphoto<br/>
+			<label>&nbsp;</label> <input type="radio" value="styleselect" name="sliderstyle">select
+			</form>
+			</div>
+			<div class="kotslider-setwin">
+			<h3>Info:</h3>
+			</div>
+		</div>
+		*/
+		?>
+	</div>
+</div>

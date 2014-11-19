@@ -1,0 +1,144 @@
+.kotslider-frame {
+width: 100%;
+overflow: hidden;
+}
+
+.kotslider-frame-body {
+width: 100%;
+min-width:400px;
+float: left;
+background: #F0F0F0;
+}
+
+.kotslider-frame-aside {
+width:300px;
+margin-left: -300px;
+float: left;
+}
+
+.kotslider-frame-aside h3 {
+font-size: 14px;
+padding:0;
+margin: 5px 0 10px 0;
+height: 30px;
+}
+
+.kotslider-frame-aside label {
+width:100px;
+display:inline-block;
+}
+
+.kotslider-setwin {
+	background:#FFF;
+	border: #E0E0E0 1px solid;
+	padding: 15px;
+	margin-bottom:20px;
+}
+
+.kotslider-formin {
+	background: #FFF;
+	width:100%;
+	border: #E0E0E0 1px solid;
+	margin-bottom:20px;
+}
+
+.kotslider-formin h3 {
+margin:0;
+border-bottom: #E0E0E0 1px solid;
+padding: 5px 0 5px 15px;
+font-size:14px;
+}
+
+.kotslider-formin-wrap {
+padding: 15px;
+}
+
+
+.kotslider-frame-body table {
+width:100%;
+border-spacing: 0;
+
+}
+
+.kotslider-frame-body table tr {
+background:#FAFAFA;
+}
+.kotslider-frame-body table tr:nth-child(2n) {background:#FFF;}
+
+.kotslider-frame-body table th {
+padding-left:10px;
+text-align: left;
+background: #FFF;
+border-bottom: #D0D0D0 1px solid;
+height:40px;
+margin:0;
+}
+
+.kotslider-frame-body table td {
+padding-left:10px;
+text-align: left;
+border-bottom: #E0E0E0 1px solid;
+height:40px; 
+}
+
+.kotslider-button {
+display: inline-block;
+box-sizing:border-box;
+padding: 4px 10px;
+margin-right: 10px;
+text-decoration: none;
+font-weight: bold;
+border-radius: 3px;
+border-color: #0074a2;
+border: 1px solid;
+cursor: pointer;
+line-height: 1.5em;
+}
+
+.kotslider-formin .big-text {
+	width:90%;
+}
+
+.kotslider-formin .small-text {
+margin-top:10px;
+margin-bottom:10px;
+}
+
+.kotslider-formin label {
+	display: inline-block;
+	margin: 0 30px 0 0;
+}
+
+.bbutton {background: #2ea2cc;color: #FFF;}
+.bbutton:hover {background:#e0e0e0; color:#000;border-color:#d8d8d8;}
+
+.gbutton {background:#e0e0e0; color:#000; border-color:#d8d8d8;}
+.gbutton:hover {background:#2ea2cc; color: #FFF; border-color:#d8d8d8;}
+
+.kotslider-formin-slide {
+display: table;
+width:100%;
+}
+
+.kotslider-formin-image {
+display: table-cell;
+vertical-align: middle;
+text-align: center;
+width: 15%;
+}
+.kotslider-formin-editor {
+display: table-cell;
+vertical-align: middle;
+width:85%;
+}
+
+.open-media {
+width: 200px;
+height: 200px;
+overflow: hidden;
+display: inline-block;
+}
+
+.open-media img {
+max-height:200px;
+}
