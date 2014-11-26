@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: WP-Kotslider
-Plugin URI: http://github.com
-Description: Content slider by ejkot
+Plugin URI: https://github.com/ejkot/wp-kotslider/blob/
+Description: Image gallery slider with rich-media captions by ejkot
 Version: 0.01
 Author: ejkot
-Author URI: http://github.com
+Author URI: https://github.com/ejkot/
 Text Domain: wp-kotslider
 */
 ?>
