@@ -11,6 +11,7 @@ Text Domain: wp-kotslider
 ?>
 <?php
 class KotSliderPlugin {
+	   private $plugin_name;
 	   private $setup=Array("width"=>"950","height"=>"650","type"=>1);
 		public static function init() {
         $kotslider = new self();	
@@ -19,7 +20,8 @@ class KotSliderPlugin {
 			$this->defineconstants();
 			$this->registerActions();
 			
-			wp_enqueue_style( 'kotslider-admin-styles', KOTSLIDER_BASE_URL . 'css/admin.css', false);
+			
+		 $this->plugin_name = plugin_basename(__FILE__);	
 
 		}
 		
@@ -46,11 +48,47 @@ class KotSliderPlugin {
 		
 		private function registerActions() {
 		add_action('admin_menu',array($this,'register_admin_menu'),9999);
+		// Функция которая исполняется при активации плагина
+		register_activation_hook( $this->plugin_name, array(&$this, 'activate') );
+ 
+		// Функция которая исполняется при деактивации плагина
+		register_deactivation_hook( $this->plugin_name, array(&$this, 'deactivate') );
+ 
+		//  Функция которая исполняется удалении плагина
+		register_uninstall_hook( $this->plugin_name, array(&$this, 'uninstall') );
+		add_shortcode('wks',array($this,'display_wks'));
+		add_action('admin_print_footer_scripts', array($this,'add_editor_button') );
+		add_action('media_buttons',array($this,'add_wks_button'),11);
+		add_action('admin_footer',Array($this,'add_wks_popup'));
+		add_action('admin_print_styles',Array($this,'add_wks_css_admin'));
+		add_action('wp_print_styles',Array($this,'add_wks_css_wp'));
+		add_action('admin_enqueue_scripts',Array($this,'add_wks_js_admin'));
 		}
+		
+		
 		
 		public function register_admin_menu(){
 			$capability ='edit_others_posts';
 			$page=add_menu_page('Koslider','Kotslider',$capability,'kotslider', array($this, 'render_admin_page'),'dashicons-admin-generic');
+		}
+		
+		public function add_wks_js_admin() {
+		wp_enqueue_script('wks_admin_js',KOTSLIDER_BASE_URL.'js/kotslider-admin.js',false);
+		}
+		
+		public function add_wks_js_wp() {
+		wp_enqueue_script('jquery_event_move',KOTSLIDER_BASE_URL.'js/jquery.event.move.js',false);
+		wp_enqueue_script('jquery_event_swipe',KOTSLIDER_BASE_URL.'js/jquery.event.swipe.js',false);
+		wp_enqueue_script('wks_jquery_plugin',KOTSLIDER_BASE_URL.'js/jquery.kotslider.js',false);
+		wp_enqueue_script('wks_start_plugin',KOTSLIDER_BASE_URL.'js/plugin_start.js',false);
+		}
+		
+		public function add_wks_css_admin() {
+		wp_enqueue_style( 'kotslider-admin-styles', KOTSLIDER_BASE_URL . 'css/admin.css', false);
+		}
+		
+		public function add_wks_css_wp() {
+		wp_enqueue_style( 'kotslider-admin-styles', KOTSLIDER_BASE_URL . 'css/kotslider.css', false);
 		}
 		
 		public function render_admin_page() {
@@ -99,9 +137,91 @@ class KotSliderPlugin {
 			$this->deletePost($post_id);
 			$vars=$this->getSlidersList();
 			include(KOTSLIDER_PATH.'html/main.html');
+			} 
+		elseif ($action=="moveup") {
+			$sliderid=intval($_GET['sliderid']);
+			$id=intval($_GET['id']);
+			$this->moveUp($id,$sliderid);
+			$vars=$this->getSliderData($sliderid);
+			include(KOTSLIDER_PATH.'html/editform.html');
+			}
+		elseif ($action=="movedown") {
+			$sliderid=intval($_GET['sliderid']);
+			$id=intval($_GET['id']);
+			$this->moveDown($id,$sliderid);
+			$vars=$this->getSliderData($sliderid);
+			include(KOTSLIDER_PATH.'html/editform.html');
 			}
 		//echo 'SHOPIZDEDC:'.KOTSLIDER_PATH;
 		}
+		
+		private function moveDown($id,$sliderid) {
+		
+			$args = array( 
+						'post_parent' => $sliderid,
+						'post_type' => 'kot-slide',
+						'numberposts' => -1,
+						'orderby'=>'menu_order',
+						'order'=>'ASC'
+						);
+			$posts=get_children($args);
+			$curorder=$posts[$id]->menu_order;
+			if (is_array($posts) && count($posts) > 1) {
+				$keys=array_keys($posts);
+				$fi=array_search($id,$keys);
+				$next=$posts[$keys[$fi+1]];	
+				if (!empty($next)) {
+						$nextorder=$next->menu_order;
+						$nextid=$next->ID;
+						$this->exchange($id,$curorder,$nextid,$nextorder);
+						}
+			
+			}
+
+		}
+		
+		private function  moveUp ($id,$sliderid) {
+			$args = array( 
+						'post_parent' => $sliderid,
+						'post_type' => 'kot-slide',
+						'numberposts' => -1,
+						'orderby'=>'menu_order',
+						'order'=>'ASC'
+						);
+			$posts=get_children($args);
+			$curorder=$posts[$id]->menu_order;
+			if (is_array($posts) && count($posts) > 1) {
+				$keys=array_keys($posts);
+				$fi=array_search($id,$keys);
+				$prev=$posts[$keys[$fi-1]];
+				if (!empty($prev)) {
+					$prevorder=$prev->menu_order;
+					$previd=$prev->ID;
+					$this->exchange($id,$curorder,$previd,$prevorder);
+					}
+				}
+
+			}
+		
+		private function exchange($id1,$order1,$id2,$order2) {
+		if ($id2 && $id1) {
+				$args=Array(
+							"ID"=>$id1,
+							"post_type"=>"kot-slide",
+							"post_status"=>"inherit",
+							"menu_order"=>$order2
+							);
+				wp_update_post($args);
+			
+				$args=Array(
+							"ID"=>$id2,
+							"post_type"=>"kot-slide",
+							"post_status"=>"inherit",
+							"menu_order"=>$order1
+							);
+				wp_update_post($args);
+				}
+			}
 		
 		private function deleteChilds($id)
 			{
@@ -143,7 +263,8 @@ class KotSliderPlugin {
 						"post_parent"=>$vars['slider']['id'],
 						"post_title"=>$sli['image'],
 						"post_content"=>$sli['content'],
-						"post_name"=>"content".$sli['id']
+						"post_name"=>"content".$sli['id'],
+						"menu_order"=>intval($sli['menu_order'])
 						);
 					wp_insert_post($args);
 					}
@@ -161,7 +282,8 @@ class KotSliderPlugin {
 						$sid=substr($ak,1);
 						$img=$av;
 						$txt=$arr['t'.$sid];
-						$slides[$sid]=Array("id"=>$sid,"image"=>$img,"content"=>$txt);
+						$menu_order=$arr['o'.$sid];
+						$slides[$sid]=Array("id"=>$sid,"image"=>$img,"content"=>$txt,"menu_order"=>$menu_order);
 						}
 				}
 			return Array("slider"=>$slider,"slides"=>$slides);
@@ -182,17 +304,36 @@ class KotSliderPlugin {
 		}
 		
 		private function addNewSlide($sliderid) {
+			$order=$this->getNextOrder($sliderid);
 			$settings = array(
 				'post_status' => 'inherit',
 				'post_type' => 'kot-slide',
 				'post_author' => $user_ID,
 				'ping_status' => get_option('default_ping_status'),
 				'post_parent' => $sliderid,
-				'menu_order' => 0,
+				'menu_order' => $order,
 				'guid' => '',
 				);
 				$id=wp_insert_post( $settings );
 				return $id;
+		}
+		
+		private function getNextOrder($sliderid) {
+			$settings= array(
+				'numberposts' => -1,
+				'post_parent' =>$sliderid,
+				'post_type'=>'kot-slide',
+				);
+			$slides_posts=get_children($settings);
+			$next=0;
+			if ($slides_posts) 
+				{
+				foreach ($slides_posts as $sp) {
+					if ($sp->menu_order>$next) $next=$sp->menu_order;
+					}
+				$next=$next+10;
+				}
+			return $next;
 		}
 		
 		private function getSliderData($id) {
@@ -211,6 +352,7 @@ class KotSliderPlugin {
 			'numberposts' => -1,
 			'post_parent' =>$id,
 			'post_type'=>'kot-slide',
+			'orderby'=>'menu_order',
 			'order'=>'ASC'
 			);
 			$slides_posts=get_children($settings);
@@ -221,6 +363,7 @@ class KotSliderPlugin {
 							$slides[$sp->ID]['content']=$sp->post_content;
 							if (!empty($sp->post_title)) $img=$sp->post_title; else $img=KOTSLIDER_BASE_URL . 'css/addimage.png';
 							$slides[$sp->ID]['img']=$img;
+							$slides[$sp->ID]['menu_order']=$sp->menu_order;
 							}
 					}
 			return Array("slider"=>$slider,'slides'=>$slides);
@@ -251,11 +394,85 @@ class KotSliderPlugin {
 		return $sliders;
 		  
 		}
+		
+		public function display_wks($atts) {
+		$slider_id=$atts['id'];
+		if ($slider_id>0) {
+				$slider=$this->getSliderData($slider_id);
+				if (!empty($slider) && is_array($slider)){
+				 $this->add_wks_js_wp();
+				 $jsdata=Array('width'=>$slider['slider']['width'],'height'=>$slider['slider']['height']);
+				 wp_localize_script( 'wks_start_plugin', 'jsdata', $jsdata);
+				 ob_start();
+?>
+					<div id="kotslider-info" class="kotslider-info"></div>
+					<div id="kotslider" data-id="<?php echo $slider['slider']['id'] ?>" class="kotslider">
+					<ul>
+<?php				
+						if (!empty($slider['slides'])) {
+							foreach ($slider['slides'] as $k=>$s)
+								{
+?>
+	<li>
+		<?php /*<div class="kotslider-img" style="width: <?php echo $slider['slider']['width']; ?>px; height: <?php echo $slider['slider']['height']; ?>px;"><img src="<?php echo $s['img']; ?>" alt="<?php echo $s['content']; ?>"/></div> */ ?>
+		<img src="<?php echo $s['img']; ?>" alt='<?php echo $s['content']; ?>'/>
+		<?php /*<div class="kotslider-content"><?php echo $s['content']; ?></div>*/ ?>
+	</li>
+<?php
+								}
+						}
+?>
+					</ul>
+					</div>
+				<div id="kotslider-content" class="kotslider-content desc"></div>
+<?php
+				$res=ob_get_contents();
+				ob_clean();
+					}
+				}
+		return $res;
+		}
+		
+		public function add_editor_button() {
+			if ( wp_script_is('quicktags') ){ ?>
+<script type="text/javascript">
+QTags.addButton( 'my_id', 'my button', my_callback );
+function my_callback() { alert('Ура!'); } 
+</script>
+<?php			}
+		}
+		
+		public function add_wks_button() {
+			echo '<a href="#TB_inline?width=400&inlineId=wks_popup" class="thickbox button" title="Select slider"><span class="kot-icon"></span>Add Kotslider</a>';
+			}
+			
+		public function add_wks_popup() {
+?>
+			<div id="wks_popup">
+				<div class="wks-popup-form">
+					<h3 style="margin-bottom:30px;">Insert kot slider</h3>
+					<select name="wks-select" id="wks-select">
+<?php
+		$sliders=$this->getSlidersList();
+		if (!empty($sliders) && is_array($sliders)) {
+					foreach ($sliders as $s)
+						{
+						echo '<option value="'.$s['id'].'">'.$s['title'].'</option>';
+						}
+				}
+?>						
+					</select> <button class="button primary" id="wks_insert_button">Insert Slider</button>
+				</div>
+			</div>
+<?php
+			}
+		
+
 
 }
 ?>
 <?php
-#Подключение планина
+#Подключение плагина
 add_action( 'plugins_loaded', array( 'KotSliderPlugin', 'init' ), 10 );
 
 ?>

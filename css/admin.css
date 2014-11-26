@@ -142,3 +142,17 @@ display: inline-block;
 .open-media img {
 max-height:200px;
 }
+
+.kot-icon {
+width:16px;
+height:16px;
+background: url('kot16icon.png') no-repeat;
+display: inline-block;
+vertical-align: middle;
+margin-top: -4px;
+padding-right: 5px;
+}
+
+#wks_popup {
+display: none;
+}

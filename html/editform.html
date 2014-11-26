@@ -22,7 +22,7 @@
 	<h2>Edit slider: <a href="?page=kotslider" class="add-new-h2">Back</a></h2>
 	<div class="kotslider-frame">
 		<div class="kotslider-frame-body">
-		<form action="?page=kotslider&action=save" method="post">
+		<form action="?page=kotslider&action=save#end" method="post">
 			<div class="kotslider-formin">
 			<h3><?php echo $vars['slider']['title']; if ($message) echo ' <strong style="color:#00FF00;">['.$message.']</strong>';?></h3>			
 			<div class="kotslider-formin-wrap">
@@ -30,14 +30,9 @@
 			<label>Width:</label><input type="text" name="width" class="small-text right" value="<?php echo $vars['slider']['width']; ?>"/>
 			<label>Height:</label><input type="text" name="height" class="small-text right" value="<?php echo $vars['slider']['height']; ?>"/><br />
 			<input type="hidden" name="sliderid" value="<?php echo $vars['slider']['id']; ?>">
-			<!--
-			<label>Style:</label>
-				<input type="radio" value="styledayfoto" name="sliderstyle" checked>dayphoto
-				<input type="radio" value="styleselect" name="sliderstyle">select
-				-->
 			<hr>
 			<input name="save" type="submit" class="kotslider-button bbutton" id="publish" value="Save">
-			<a href="?page=kotslider&action=deleteslider&id=<?php echo $vars['slider']['id'];  ?>" class="kotslider-button gbutton" id="delete">Delete</a>
+			<a href="?page=kotslider&action=deleteslider&id=<?php echo $vars['slider']['id'];  ?>" class="kotslider-button gbutton sl-delete" id="delete">Delete</a>
 			</div>
 			</div>
 		
@@ -47,7 +42,7 @@
 				foreach ($vars['slides'] as $s) {
 ?>
 			<div class="kotslider-formin">
-				<h3><?php echo "#".$s['id']; ?></h3>
+				<h3><?php echo "#".$s['id']; ?>&nbsp;Order: <input type="text" name="o<?php echo $s['id']; ?>" value="<?php echo $s['menu_order']; ?>" style="width:40px"/></h3>
 				<div class="kotslider-formin-wrap">
 					<div class="kotslider-formin-slide">
 						<div class="kotslider-formin-image">
@@ -57,12 +52,18 @@
 						</a>
 						</div>
 						<div class="kotslider-formin-editor">
-						<?php wp_editor($s['content'],$s['id'],Array('textarea_name'=>'t'.$s['id'],'textarea_rows' => 10)); ?>
+						
+						<?php wp_editor($s['content'],$s['id'],Array('textarea_name'=>'t'.$s['id'],'textarea_rows' => 10,'wpautop'=>0,'tinymce' => array( 
+            'content_css' => get_stylesheet_directory_uri() . '/editor-style.css' 
+       ) )); ?>
 						</div>
 						</div>
 						<div class="clear"></div>
 				<hr>
-				<a href="?page=kotslider&action=deleteslide&id=<?php echo $s['id']; ?>&sliderid=<?php echo $vars['slider']['id'];  ?>" class="kotslider-button gbutton" id="delete">Trash</a>
+				<input name="save" type="submit" class="kotslider-button bbutton" id="publish" value="Save">
+				<a href="?page=kotslider&action=moveup&id=<?php echo $s['id']; ?>&sliderid=<?php echo $vars['slider']['id'];  ?>"  class="kotslider-button gbutton">Move UP</a>
+				<a href="?page=kotslider&action=movedown&id=<?php echo $s['id']; ?>&sliderid=<?php echo $vars['slider']['id'];  ?>"  class="kotslider-button gbutton">Move Down</a>
+				<a href="?page=kotslider&action=deleteslide&id=<?php echo $s['id']; ?>&sliderid=<?php echo $vars['slider']['id'];  ?>" class="kotslider-button gbutton sl-delete" id="delete">Delete</a>
 				</div>
 			</div>
 <?php 		}
@@ -70,25 +71,8 @@
 	?>
 	</form>
 		</div>
-		<hr>
-		<a href="?page=kotslider&action=addslide&sliderid=<?php echo $vars['slider']['id']; ?>" class="kotslider-button bbutton" method="post">+ Slide</a>
+		<hr id="end">
+		<a href="?page=kotslider&action=addslide&sliderid=<?php echo $vars['slider']['id']; ?>#end" class="kotslider-button bbutton" method="post">+ Slide</a>
 		</div>
-		<?php /*
-		<div class="kotslider-frame-aside">
-			<div class="kotslider-setwin">
-			<form action="?" name="slider-settings">
-			<h3>Settings:<input name="save" type="submit" class="button button-primary button-large right" id="publish" accesskey="p" value="Save"></h3>
-			<label>Width:</label><input type="text" name="width" class="small-text right" value="950"/><br />
-			<label>Height:</label><input type="text" name="height" class="small-text right" value="650"/><br /><br />
-			<label>Style:</label>
-			<input type="radio" value="styledayfoto" name="sliderstyle" checked>dayphoto<br/>
-			<label>&nbsp;</label> <input type="radio" value="styleselect" name="sliderstyle">select
-			</form>
-			</div>
-			<div class="kotslider-setwin">
-			<h3>Info:</h3>
-			</div>
-		</div>
-		*/ ?>
 	</div>
 </div>
