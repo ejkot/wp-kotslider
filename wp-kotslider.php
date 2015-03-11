@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*
 Plugin Name: WP-Kotslider
 Plugin URI: https://github.com/ejkot/wp-kotslider/blob/
@@ -37,9 +37,6 @@ class KotSliderPlugin {
 		return true;
 		}
 		
-		private function getAdminPage() {
-		echo 'ADMIN PAGE';
-		}
 		
 		private function defineconstants() {
 		define ("KOTSLIDER_BASE_URL", trailingslashit( plugins_url( 'wp-kotslider' ) ));
