@@ -3,7 +3,7 @@
 Plugin Name: WP-Kotslider
 Plugin URI: https://github.com/ejkot/wp-kotslider/blob/
 Description: Image gallery slider with rich-media captions by ejkot
-Version: 0.01
+Version: 0.02
 Author: ejkot
 Author URI: https://github.com/ejkot/
 Text Domain: wp-kotslider
@@ -261,10 +261,11 @@ class KotSliderPlugin {
 						"post_type"=>"kot-slide",
 						"post_status"=>"inherit",
 						"post_parent"=>$vars['slider']['id'],
-						"post_title"=>$sli['image'],
+						"post_title"=>utf8_encode($sli['image']),
 						"post_content"=>$sli['content'],
 						"post_name"=>"content".$sli['id'],
-						"menu_order"=>intval($sli['menu_order'])
+						"menu_order"=>intval($sli['menu_order']),
+						'filter' => true
 						);
 					wp_insert_post($args);
 					}
@@ -361,7 +362,15 @@ class KotSliderPlugin {
 					foreach ($slides_posts as $sp) {
 							$slides[$sp->ID]['id']=$sp->ID;
 							$slides[$sp->ID]['content']=$sp->post_content;
-							if (!empty($sp->post_title)) $img=$sp->post_title; else $img=KOTSLIDER_BASE_URL . 'css/addimage.png';
+							if (!empty($sp->post_title) && preg_match("#^http:\/\/#Ui",$sp->post_title)) 
+									{
+									$img=$sp->post_title;
+									$slides[$sp->ID]['embeded']=$sp->post_title;
+									} else 
+									{
+									$img=KOTSLIDER_BASE_URL . 'css/addimage.png';
+									$slides[$sp->ID]['embeded']=$sp->post_title;
+									}
 							$slides[$sp->ID]['img']=$img;
 							$slides[$sp->ID]['menu_order']=$sp->menu_order;
 							}
@@ -405,26 +414,51 @@ class KotSliderPlugin {
 				 wp_localize_script( 'wks_start_plugin', 'jsdata', $jsdata);
 				 ob_start();
 ?>
+<?php if (!is_feed()) { ?>
 					<div id="kotslider-info" class="kotslider-info"></div>
 					<div id="kotslider" data-id="<?php echo $slider['slider']['id'] ?>" class="kotslider">
-					<ul>
+<?php } ?>
+					<ul<?php if (is_feed()) {?> id="is_kotslider"<?php } ?>>
 <?php				
 						if (!empty($slider['slides'])) {
+					$cnt=0;
 							foreach ($slider['slides'] as $k=>$s)
 								{
 ?>
 	<li>
 		<?php /*<div class="kotslider-img" style="width: <?php echo $slider['slider']['width']; ?>px; height: <?php echo $slider['slider']['height']; ?>px;"><img src="<?php echo $s['img']; ?>" alt="<?php echo $s['content']; ?>"/></div> */ ?>
-		<img src="<?php echo $s['img']; ?>" alt='<?php echo $s['content']; ?>'/>
+		<?php 
+		if (is_feed()) $imalt=""; else $imalt=strip_tags(str_replace("'","&#39",$s['content']));
+		if (preg_match("#^http:\/\/#Ui",$s['embeded'])) $img='<img src="'.$s['img'].'" alt="'.$imalt.'"/>'; else $img='<center>'.$s['embeded'].'</center>';
+		?>
+		<?php if (!is_feed()) { ?>
+		<div class="kotslider-embeded">
+		<?php } ?>
+		<?php echo $img ?>
+		<?php if (!is_feed()) { ?>
+		</div>
+		<?php } ?>
+		<?php if (!is_feed()) { ?>
+		<div class="kotslider-content desc">
+		<?php echo $s['content']; ?>
+		<?php } else { ?>
+		<?php echo strip_tags($s['content'],"<h1><h2><h3><h4><h5><h6><p><strong><b><a>"); ?>
+		<?php } ?>
+		<?php if (!is_feed()) { ?>
+		</div>
+		<?php } else { ?><?php } ?>
 		<?php /*<div class="kotslider-content"><?php echo $s['content']; ?></div>*/ ?>
 	</li>
 <?php
+		$cnt++;
+		if (is_feed() && $cnt>2) break;
 								}
 						}
 ?>
 					</ul>
+<?php if (!is_feed()) { ?>
 					</div>
-				<div id="kotslider-content" class="kotslider-content desc"></div>
+<?php } ?>
 <?php
 				$res=ob_get_contents();
 				ob_clean();

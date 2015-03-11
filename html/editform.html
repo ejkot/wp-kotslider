@@ -6,7 +6,8 @@
 				wp.media.editor.send.attachment = function(props, attachment) {
 				$(my).find("img").attr("src",attachment.url);
 				$(my).find("input").attr("value",attachment.url);
-				//console.log(attachment.url);
+				var mid=$(my).attr("id");
+				$('textarea[name="'+mid+'"]').val(attachment.url);
 				wp.media.editor.send.attachment=send_attachment_bkp;
 				}
 				button=$(this);
@@ -48,11 +49,12 @@
 						<div class="kotslider-formin-image">
 						<a href="#" class="open-media" id="i<?php echo $s['id']; ?>">
 							<img src="<?php echo $s['img']; ?>" class="addimage"/>
-							<input type="hidden" name="i<?php echo $s['id']; ?>" value="<?php echo $s['img']; ?>"/>
 						</a>
+						<br />
+						<strong>embeded:</strong><br />
+						<textarea class="big-text" name="i<?php echo $s['id']; ?>"><?php echo $s['embeded']; ?></textarea>
 						</div>
 						<div class="kotslider-formin-editor">
-						
 						<?php wp_editor($s['content'],$s['id'],Array('textarea_name'=>'t'.$s['id'],'textarea_rows' => 10,'wpautop'=>0,'tinymce' => array( 
             'content_css' => get_stylesheet_directory_uri() . '/editor-style.css' 
        ) )); ?>
