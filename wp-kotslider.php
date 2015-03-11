@@ -466,10 +466,7 @@ class KotSliderPlugin {
 		
 		public function add_editor_button() {
 			if ( wp_script_is('quicktags') ){ ?>
-<script type="text/javascript">
-QTags.addButton( 'my_id', 'my button', my_callback );
-function my_callback() { alert('Ура!'); } 
-</script>
+
 <?php			}
 		}
 		
