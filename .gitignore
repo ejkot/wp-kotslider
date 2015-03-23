@@ -1,2 +1,4 @@
 css/_kotslider.css
 js/_jquery.kotslider.js
+js/jquery.event.swipe.js
+js/jquery.event.move.js

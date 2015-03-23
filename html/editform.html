@@ -53,7 +53,9 @@
 						<br />
 						<strong>embeded:</strong><br />
 						<textarea class="big-text" name="i<?php echo $s['id']; ?>"><?php echo $s['embeded']; ?></textarea>
-						</div>
+                                                <strong>title:</strong><br />
+                                                <input type="text" class="big-text" name="c<?php echo $s['id']; ?>" value="<?php echo $s['title']; ?>"/>
+                                                </div>
 						<div class="kotslider-formin-editor">
 						<?php wp_editor($s['content'],$s['id'],Array('textarea_name'=>'t'.$s['id'],'textarea_rows' => 10,'wpautop'=>0,'tinymce' => array( 
             'content_css' => get_stylesheet_directory_uri() . '/editor-style.css' 

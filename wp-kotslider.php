@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
 Plugin Name: WP-Kotslider
 Plugin URI: https://github.com/ejkot/wp-kotslider/blob/
@@ -37,6 +37,9 @@ class KotSliderPlugin {
 		return true;
 		}
 		
+		private function getAdminPage() {
+		echo 'ADMIN PAGE';
+		}
 		
 		private function defineconstants() {
 		define ("KOTSLIDER_BASE_URL", trailingslashit( plugins_url( 'wp-kotslider' ) ));
@@ -259,6 +262,7 @@ class KotSliderPlugin {
 						"post_status"=>"inherit",
 						"post_parent"=>$vars['slider']['id'],
 						"post_title"=>utf8_encode($sli['image']),
+                                                "post_excerpt"=>$sli['title'],
 						"post_content"=>$sli['content'],
 						"post_name"=>"content".$sli['id'],
 						"menu_order"=>intval($sli['menu_order']),
@@ -281,7 +285,8 @@ class KotSliderPlugin {
 						$img=$av;
 						$txt=$arr['t'.$sid];
 						$menu_order=$arr['o'.$sid];
-						$slides[$sid]=Array("id"=>$sid,"image"=>$img,"content"=>$txt,"menu_order"=>$menu_order);
+                                                $title=$arr['c'.$sid];
+						$slides[$sid]=Array("id"=>$sid,"image"=>$img,"content"=>$txt,"menu_order"=>$menu_order,"title"=>$title);
 						}
 				}
 			return Array("slider"=>$slider,"slides"=>$slides);
@@ -359,6 +364,7 @@ class KotSliderPlugin {
 					foreach ($slides_posts as $sp) {
 							$slides[$sp->ID]['id']=$sp->ID;
 							$slides[$sp->ID]['content']=$sp->post_content;
+                                                        $slides[$sp->ID]['title']=$sp->post_excerpt;
 							if (!empty($sp->post_title) && preg_match("#^http:\/\/#Ui",$sp->post_title)) 
 									{
 									$img=$sp->post_title;
@@ -407,13 +413,15 @@ class KotSliderPlugin {
 				$slider=$this->getSliderData($slider_id);
 				if (!empty($slider) && is_array($slider)){
 				 $this->add_wks_js_wp();
-				 $jsdata=Array('width'=>$slider['slider']['width'],'height'=>$slider['slider']['height']);
-				 wp_localize_script( 'wks_start_plugin', 'jsdata', $jsdata);
+                                 if ($slider['slider']['width']) $width="width: ".$slider['slider']['width']."px;"; else $width="";
+                                 if ($slider['slider']['height']) $height="height: ".$slider['slider']['height']."px;"; else $height="";
+				 //$jsdata=Array('width'=>$slider['slider']['width'],'height'=>$slider['slider']['height']);
+				// wp_localize_script( 'wks_start_plugin', 'jsdata', $jsdata);
 				 ob_start();
 ?>
 <?php if (!is_feed()) { ?>
-					<div id="kotslider-info" class="kotslider-info"></div>
-					<div id="kotslider" data-id="<?php echo $slider['slider']['id'] ?>" class="kotslider">
+					
+					<div data-id="<?php echo $slider['slider']['id'] ?>" class="kotwrapper">
 <?php } ?>
 					<ul<?php if (is_feed()) {?> id="is_kotslider"<?php } ?>>
 <?php				
@@ -425,16 +433,26 @@ class KotSliderPlugin {
 	<li>
 		<?php /*<div class="kotslider-img" style="width: <?php echo $slider['slider']['width']; ?>px; height: <?php echo $slider['slider']['height']; ?>px;"><img src="<?php echo $s['img']; ?>" alt="<?php echo $s['content']; ?>"/></div> */ ?>
 		<?php 
-		if (is_feed()) $imalt=""; else $imalt=strip_tags(str_replace("'","&#39",$s['content']));
+		if (is_feed()) $imalt=""; else 
+                    {
+                    if ($s['title']) $imalt=strip_tags(str_replace("'","&#39",$s['title'])); else
+                            $imalt=strip_tags(str_replace("'","&#39",$s['content']));
+                    }
+               
 		if (preg_match("#^http:\/\/#Ui",$s['embeded'])) $img='<img src="'.$s['img'].'" alt="'.$imalt.'"/>'; else $img='<center>'.$s['embeded'].'</center>';
 		?>
 		<?php if (!is_feed()) { ?>
-		<div class="kotslider-embeded">
+		<div class="kotslider-embeded" style="<?php #echo $width." ".$height; ?>">
 		<?php } ?>
 		<?php echo $img ?>
 		<?php if (!is_feed()) { ?>
 		</div>
 		<?php } ?>
+                <?php if ($s['title']) { ?>
+                <div class="kotslider-imgtitle">
+                    <?php echo $s['title']; ?>
+                </div>
+                <?php } ?>
 		<?php if (!is_feed()) { ?>
 		<div class="kotslider-content desc">
 		<?php echo $s['content']; ?>
@@ -466,7 +484,10 @@ class KotSliderPlugin {
 		
 		public function add_editor_button() {
 			if ( wp_script_is('quicktags') ){ ?>
-
+<script type="text/javascript">
+QTags.addButton( 'my_id', 'my button', my_callback );
+function my_callback() { alert('Ура!'); } 
+</script>
 <?php			}
 		}
 		
